@@ -1,10 +1,12 @@
 import falcon, logging, redis, json, requests
 from messenger_hook.falcon_messenger import FalconMessenger
 from .confirmation import Confirmation
+from .sinch import SinchVerif
 
 class M(FalconMessenger, Confirmation):
-    def __init__(self, redis_client, *args, **kwargs):
+    def __init__(self, redis_client, sinch, *args, **kwargs):
         self.redis = redis_client
+        self.sinch = sinch
         super(M, self).__init__(*args, **kwargs)
 
     def geo_locate(self, address):
@@ -15,9 +17,9 @@ class M(FalconMessenger, Confirmation):
         return address
 
     def transform_message(self, recipient_id, text, attachments):
-        logging.getLogger('aa').error('transform_message(%s, %s, %s)'.format(recipient_id, text, attachments))
-        # if not self.check_customer_confirmed(recipient_id):
-        #     return self.confirm_customer(recipient_id, text)
+        logging.getLogger('aa').error('transform_message({}, {}, {})'.format(recipient_id, text, attachments))
+        if not self.check_customer_confirmed(recipient_id):
+            return self.confirm_customer(recipient_id, text)
         id_ = 'localization:{}'.format(recipient_id)
         if not redis_client.exists(id_):
             redis_client.set(id_, 'location_asked')
@@ -36,10 +38,12 @@ class M(FalconMessenger, Confirmation):
 
 app = falcon.API()
 redis_client = redis.Redis()
+
 with open('/srv/www/taxi/taxi/config.json', encoding='utf-8') as f:
     config = json.load(f)
 
-messenger = M(redis_client, config['verify'], config['messenger_key'])
+sinch = SinchVerif(config['sinch_key'], config['sinch_secret'])
+messenger = M(redis_client, sinch, config['verify'], config['messenger_key'])
 
 app.add_route('/taxi/verify/', messenger)
 
