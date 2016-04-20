@@ -1,4 +1,4 @@
-import falcon, logging, redis, json
+import falcon, logging, redis, json, requests
 from messenger_hook.falcon_messenger import FalconMessenger
 from .confirmation import Confirmation
 
@@ -7,6 +7,11 @@ class M(FalconMessenger, Confirmation):
         self.redis = redis_client
         super(M, self).__init__(*args, **kwargs)
 
+    def geo_locate(address):
+        print('Requesting BAN to locate address...')
+        r = request.get('http://api-adresse.data.gouv.fr/search/?q={}'.format(address))
+        print(r.text)
+        return r.status_code
 
     def transform_message(self, recipient_id, text, attachments):
         logging.getLogger('aa').error('transform_message(%s, %s, %s)'.format(recipient_id, text, attachments))
@@ -19,12 +24,13 @@ class M(FalconMessenger, Confirmation):
         else:
             if text:
                 logging.getLogger('a').error('text: {}'.format(text))
-                return 'Requesting BAN to locate address...'
+                return geo_locate(text)
             elif attachments:
                 # Position
                 logging.getLogger('a').error('attachments: {}'.format(attachments))
                 return 'got attachments'
             return 'got nothing'
+
 
 
 app = falcon.API()
