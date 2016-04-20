@@ -10,7 +10,9 @@ class M(FalconMessenger, Confirmation):
     def geo_locate(self, address):
         logging.getLogger('a').error('Requesting BAN to locate address...')
         r = requests.get('http://api-adresse.data.gouv.fr/search/?q={}'.format(address))
-        return r.status_code
+        address = r.json()['features'][0]['properties']['label']
+        logging.getLogger('a').error('Located {}'.format(address))
+        return address
 
     def transform_message(self, recipient_id, text, attachments):
         logging.getLogger('aa').error('transform_message(%s, %s, %s)'.format(recipient_id, text, attachments))
