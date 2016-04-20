@@ -7,9 +7,15 @@ class Confirmation:
     def confirm_customer(self, recipient_id, text):
         id_ = 'confirmation:{}'.format(recipient_id)
         if not redis.exists(id_):
-            redis.set(id_, 'phone_number_asked')
+            self.redis.set(id_, 'phone_number_asked')
             return 'Pour commencer, entrez votre numéro de téléphone'
-        status = redis.get(id_, 'phone_number_asked') 
+        status = self.redis.get(id_, 'phone_number_asked') 
         if status == 'phone_number_asked':
+            self.redis.set('phone_number:{}'.format(recipient_id), text)
             verify_phone_number.delay(recipient_id, text)
-            
+        if status == 'sms_sent':
+            phone_number = self.redis.get('phone_number:{}'.format(recipient_id))
+            if self.sinch.confirm_code(text, phone_number):
+                self.redis.sset('customer_confirmed', phone_number)
+                return "Ok, j'ai votre numéro, à quelle adresse voulez vous le taxi ?"
+
