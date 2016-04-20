@@ -18,8 +18,8 @@ class M(FalconMessenger, Confirmation):
 
     def transform_message(self, recipient_id, text, attachments):
         logging.getLogger('aa').error('transform_message(%s, %s, %s)'.format(recipient_id, text, attachments))
-        # if not self.check_customer_confirmed(recipient_id):
-        #     return self.confirm_customer(recipient_id, text)
+        if not self.check_customer_confirmed(recipient_id):
+            return self.confirm_customer(recipient_id, text)
         id_ = 'localization:{}'.format(recipient_id)
         if not redis_client.exists(id_):
             redis_client.set(id_, 'location_asked')
