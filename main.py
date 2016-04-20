@@ -7,10 +7,9 @@ class M(FalconMessenger, Confirmation):
         self.redis = redis_client
         super(M, self).__init__(*args, **kwargs)
 
-    def geo_locate(address):
-        print('Requesting BAN to locate address...')
-        r = request.get('http://api-adresse.data.gouv.fr/search/?q={}'.format(address))
-        print(r.text)
+    def geo_locate(self, address):
+        logging.getLogger('a').error('Requesting BAN to locate address...')
+        r = requests.get('http://api-adresse.data.gouv.fr/search/?q={}'.format(address))
         return r.status_code
 
     def transform_message(self, recipient_id, text, attachments):
@@ -24,7 +23,7 @@ class M(FalconMessenger, Confirmation):
         else:
             if text:
                 logging.getLogger('a').error('text: {}'.format(text))
-                return geo_locate(text)
+                return self.geo_locate(text)
             elif attachments:
                 # Position
                 logging.getLogger('a').error('attachments: {}'.format(attachments))
