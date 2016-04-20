@@ -1,9 +1,9 @@
 from celery import Celery
-import sinch, redis
+import sinchsms, redis, json
 
 
-with open('config.json', encoding='utf-8') as f:
-    config = json.load('config.json')
+with open('/srv/www/taxi/taxi/config.json', encoding='utf-8') as f:
+    config = json.load(f)
 sinch = sinchsms.SinchSMS(config['sinch_key'], config['sinch_secret'])
 sinch.SEND_SMS_URL = 'https://sandbox.sinch.com/v1/sms/'
 sinch.CHECK_STATUS_URL = 'https://sandbox.sinch.com/v1/sms/'

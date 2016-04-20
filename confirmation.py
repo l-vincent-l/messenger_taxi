@@ -1,4 +1,4 @@
-from tasks import verify_phone_number
+from .tasks import verify_phone_number
 
 class Confirmation:
     def check_customer_confirmed(self, recipient_id):
@@ -10,6 +10,6 @@ class Confirmation:
             redis.set(id_, 'phone_number_asked')
             return 'Pour commencer, entrez votre numéro de téléphone'
         status = redis.get(id_, 'phone_number_asked') 
-        if status = 'phone_number_asked':
+        if status == 'phone_number_asked':
             verify_phone_number.delay(recipiend_id, text)
             

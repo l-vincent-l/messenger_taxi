@@ -1,4 +1,4 @@
-import falcon, logging, redis
+import falcon, logging, redis, json
 from messenger_hook.falcon_messenger import FalconMessenger
 from .confirmation import Confirmation
 
@@ -23,8 +23,8 @@ class M(FalconMessenger, Confirmation):
 
 app = falcon.API()
 redis_client = redis.Redis()
-with open('config.json', encoding='utf-8') as f:
-    config = json.load('config.json')
+with open('/srv/www/taxi/taxi/config.json', encoding='utf-8') as f:
+    config = json.load(f)
 
 messenger = M(redis_client, config['verify'], config['messenger_key'])
 
