@@ -17,7 +17,7 @@ class M(FalconMessenger, Confirmation):
         return address
 
     def transform_message(self, recipient_id, text, attachments):
-        logging.getLogger('aa').error('transform_message(%s, %s, %s)'.format(recipient_id, text, attachments))
+        logging.getLogger('aa').error('transform_message({}, {}, {})'.format(recipient_id, text, attachments))
         if not self.check_customer_confirmed(recipient_id):
             return self.confirm_customer(recipient_id, text)
         id_ = 'localization:{}'.format(recipient_id)
@@ -38,11 +38,11 @@ class M(FalconMessenger, Confirmation):
 
 app = falcon.API()
 redis_client = redis.Redis()
-sinch = SinchVerif(config['sinch_key'], config['sinch_secret'])
 
 with open('/srv/www/taxi/taxi/config.json', encoding='utf-8') as f:
     config = json.load(f)
 
+sinch = SinchVerif(config['sinch_key'], config['sinch_secret'])
 messenger = M(redis_client, sinch, config['verify'], config['messenger_key'])
 
 app.add_route('/taxi/verify/', messenger)
